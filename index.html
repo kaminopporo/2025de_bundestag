@@ -384,8 +384,10 @@
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
-                padding: 0;
+                padding: 7.5px; /* 修正: スマホの全体余白を半分に */
                 gap: 0;
+                height: 100%;
+                width: 100%;
             }
             .sidebar {
                 display: none;
@@ -393,19 +395,21 @@
             #map {
                 flex-grow: 1;
                 height: 100%;
-                box-shadow: none;
+                /* border-radius: 12px; はPC版のスタイルが継承されるため、ここでの変更は不要 */
+                box-shadow: none; /* スマホでは影をなくす（任意） */
                 overflow: hidden;
-                border-radius: 0;
             }
             #info-panel {
                 display: none;
             }
+            /* Info button on mobile */
             .info-button {
-                top: 10px;
-                right: 10px;
+                top: 12.5px; /* 修正: スマホでもPCと同様に情報ボタンを15pxの位置に */
+                right: 12.5px; /* 修正: スマホでもPCと同様に情報ボタンを15pxの位置に */
                 width: 35px;
                 height: 35px;
-                font-size: 24px;
+                /* Material Iconsに対応するためにfont-sizeを調整 */
+                font-size: 24px; 
                 z-index: 600;
             }
             /* Leafletポップアップのスタイル調整 */
@@ -765,7 +769,7 @@
             <div class="section-divider"></div>
             <p><strong>クリックで詳細:</strong> 地図上の選挙区をクリックすると、サイドバー（PC）またはポップアップ（スマートフォン）にその選挙区の各政党の得票率詳細が表示されます。</p>
             
-            <p><strong>データソース:</strong> (データソース情報があれば記載)</p>
+            <p><strong>データソース:</strong> ドイツ政府が公表するデータに基づいています。</p>
         </div>            
     </div>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
