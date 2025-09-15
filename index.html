@@ -434,7 +434,7 @@
                 color: #2c3e50;
             }
             .leaflet-popup-content h3 {
-                font-size: 0.9em;
+                font-size: 1em;
                 margin-top: 5px;
                 margin-bottom: 2px;
                 border-bottom: 1px solid #e0e0e0; /* 追加: 区切り線 */
@@ -917,7 +917,9 @@
         return null;
     }
     
-    // 地物のスタイルを決定する関数
+
+
+// 地物のスタイルを決定する関数
     function style(feature) {
         const props = feature.properties;
         let fillColor = '#ffffff';
@@ -928,7 +930,8 @@
                 const winnerPercentage = props['GIS2025独_当選得票率'] || 0;
                 if (winner && winner !== '当選者なし') {
                     fillColor = partyColors[winner] || '#ffffff';
-                    fillOpacity = (winnerPercentage || 0) / 100;
+                    // 修正箇所: 50%を基準に不透明度を計算
+                    fillOpacity = Math.min(1.0, (winnerPercentage || 0) / 50);
                 } else {
                     fillColor = '#ffffff';
                     fillOpacity = 0;
@@ -962,6 +965,9 @@
             fillOpacity: fillOpacity
         };
     }
+
+
+
     
 
 
