@@ -1262,14 +1262,16 @@ function updateInfoPanel(props) {
                 
                 document.getElementById('info-panel').innerHTML = '地図データの読み込みに失敗しました。ファイルが正しい場所にあるか確認してください。';
             });
-        // 凡例クリックイベントリスナー
-        const legendItems = document.querySelectorAll('.legend-item');
+
+// 凡例クリックイベントリスナー
+        const legendItems = document.querySelectorAll('.legend-in-explanation .legend-item');
         legendItems.forEach(item => {
             item.addEventListener('click', () => {
                 // すべての項目から 'selected' クラスを削除
                 legendItems.forEach(li => li.classList.remove('selected'));
                 // クリックされた項目に 'selected' クラスを追加
                 item.classList.add('selected');
+
                 currentViewMode = item.dataset.partyName;
                 updateMapStyle(); // 地図のスタイルを更新
                 
@@ -1278,18 +1280,23 @@ function updateInfoPanel(props) {
                     updateInfoPanel(currentSelectedLayer.feature.properties);
                 }
                 
-                // 修正: 凡例クリック時に開いているポップアップを閉じる
-                // これにより、モバイルで表示モードを切り替えた際に、
-                // 古い情報が表示され続けることを防ぎます。
+                // 凡例クリック時に開いているポップアップを閉じる
                 map.closePopup();
             });
         });
+
+
+
         // 情報ボタンとモーダル
         const explanationOverlay = document.getElementById('explanationOverlay');
         const infoButton = document.getElementById('infoButton');
         const closeExplanationButton = document.getElementById('closeExplanationButton');
-        
-        // 新規追加: 凡例トグルボタンのイベントリスナー
+
+
+
+
+
+// 凡例トグルボタンのイベントリスナー
         const smLegendToggle = document.getElementById('sm-legend-toggle');
         const lgLegendToggle = document.getElementById('lg-legend-toggle');
         const smLegendList = document.getElementById('sm-legend-list');
@@ -1316,19 +1323,19 @@ function updateInfoPanel(props) {
         }
 
 
-// 小選挙区のボタンのクリックイベント
-smLegendToggle.addEventListener('click', () => {
-    // すべてのハイライトを解除する
-    legendItems.forEach(li => li.classList.remove('selected'));
-    toggleLegend(smLegendList, smLegendToggle);
-});
+        // 小選挙区のボタンのクリックイベント
+        smLegendToggle.addEventListener('click', () => {
+            // すべてのハイライトを解除するコードを削除
+            // legendItems.forEach(li => li.classList.remove('selected'));
+            toggleLegend(smLegendList, smLegendToggle);
+        });
 
-// 比例代表のボタンのクリックイベント
-lgLegendToggle.addEventListener('click', () => {
-    // すべてのハイライトを解除する
-    legendItems.forEach(li => li.classList.remove('selected'));
-    toggleLegend(lgLegendList, lgLegendToggle);
-});
+        // 比例代表のボタンのクリックイベント
+        lgLegendToggle.addEventListener('click', () => {
+            // すべてのハイライトを解除するコードを削除
+            // legendItems.forEach(li => li.classList.remove('selected'));
+            toggleLegend(lgLegendList, lgLegendToggle);
+        });
 
 
         infoButton.addEventListener('click', () => {
@@ -1354,6 +1361,9 @@ lgLegendToggle.addEventListener('click', () => {
         // ページ読み込み時に説明パネルを自動的に表示
         explanationOverlay.classList.add('active');
     });
+
+
+
 </script>
 </body>
 </html>
