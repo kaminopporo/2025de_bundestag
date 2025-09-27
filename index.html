@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>2025ドイツ連邦議会選挙</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         /* HTMLとBody要素をビューポートいっぱいに広げる */
-        html, body {
+        html,
+        body {
             height: 100%;
             width: 100%;
             margin: 0;
@@ -18,67 +21,82 @@
             font-family: 'Noto Sans JP', sans-serif;
             background-color: #ffffff;
         }
+
         /* コンテナ（サイドバーと地図を横並びにする） */
         .container {
             display: flex;
             height: 100%;
             width: 100%;
             gap: 15px;
-            padding: 15px; /* PCレイアウトの全体余白 */
+            padding: 15px;
+            /* PCレイアウトの全体余白 */
             box-sizing: border-box;
             align-items: stretch;
-            position: relative; /* 情報ボタンの基準にするため追加 */
+            position: relative;
+            /* 情報ボタンの基準にするため追加 */
         }
+
         /* サイドバーのスタイル */
         .sidebar {
             width: 300px;
-            background-color: #fff2cc;
+            background-color: #000000;
             padding: 30px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            overflow-y: auto; /* サイドバー全体でのスクロールは維持 */
+            overflow-y: auto;
+            /* サイドバー全体でのスクロールは維持 */
             position: relative;
             border-radius: 15px;
         }
+
         /* スクロールバーのスタイル（WebKitブラウザ向け） */
         .sidebar::-webkit-scrollbar {
             width: 8px;
         }
+
         .sidebar::-webkit-scrollbar-track {
             background: #FFFFFF00;
             border-radius: 15px;
         }
+
         .sidebar::-webkit-scrollbar-thumb {
             background: #888;
             border-radius: 15px;
         }
+
         .sidebar::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
+
         /* ドラッグハンドルのスタイル (非表示にする) */
         .sidebar-resizer {
             display: none;
         }
+
         /* 地図が表示されるdiv要素 */
         #map {
             flex-grow: 1;
             height: 100%;
             width: auto;
-            border-radius: 15px; /* PCレイアウトの地図の角を丸く */
+            border-radius: 15px;
+            /* PCレイアウトの地図の角を丸く */
             overflow: hidden;
         }
+
         /* サイドバー内の各セクションのスタイル */
         .sidebar h1 {
             font-size: 2em;
             font-weight: 700;
             margin-top: 0;
-            margin-bottom: 5px; /* タイトルと詳細情報の間のマージンを詰める */
+            margin-bottom: 5px;
+            /* タイトルと詳細情報の間のマージンを詰める */
             text-align: left;
-            color: #990000;
+            color: #ffcc00;
             line-height: 1.3;
             display: block;
         }
+
         /* Info button style - 地図の右上に配置 */
         .info-button {
             position: absolute;
@@ -91,7 +109,7 @@
             height: 30px;
             font-family: 'Material Icons';
             font-size: 20px;
-            color: #666;
+            color: #000000;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -100,22 +118,29 @@
             transition: color 0.3s ease, transform 0.2s ease;
             z-index: 600;
         }
+
         .info-button:hover {
             color: #333;
             transform: scale(1.02);
         }
+
         .legend {
             margin-bottom: 30px;
         }
-        .legend h2, .details h2 {
+
+        .legend h2,
+        .details h2 {
             font-size: 1.4em;
             font-weight: 500;
             margin-top: 0;
-            margin-bottom: 5px; /* 詳細情報のタイトル下マージンを詰める */
+            margin-bottom: 5px;
+            /* 詳細情報のタイトル下マージンを詰める */
             border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 5px; /* 詳細情報のタイトル下パディングを詰める */
-            color: #34495e;
+            padding-bottom: 5px;
+            /* 詳細情報のタイトル下パディングを詰める */
+            color: #e0e0e0;
         }
+
         /* 凡例の項目スタイル */
         .legend-item {
             display: flex;
@@ -126,94 +151,129 @@
             padding: 5px 0;
             transition: background-color 0.2s ease;
             border-radius: 15px;
-            cursor: pointer; /* クリック可能であることを示す */
+            cursor: pointer;
+            /* クリック可能であることを示す */
         }
+
         /* 選択された凡例項目のスタイル */
         .legend-item.selected {
             background-color: #e9e9e9;
             font-weight: 600;
             color: #990000;
         }
+
         /* カラーシンボルの角を丸くする */
         .legend-color {
             width: 24px;
             height: 24px;
             margin-right: 15px;
             flex-shrink: 0;
-            border-radius: 1px; /* ここを変更 */
+            border-radius: 1px;
+            /* ここを変更 */
         }
-        
+
         /* 選択不可の項目スタイル */
         .legend-item.unselectable {
-            cursor: not-allowed; /* マウスカーソルを変更 */
-            background-color: transparent; /* ホバーアクションをなくす */
-            font-weight: normal; /* 太字をなくす */
-            color: #4a4a4a; /* 文字色を元に戻す */
+            cursor: not-allowed;
+            /* マウスカーソルを変更 */
+            background-color: transparent;
+            /* ホバーアクションをなくす */
+            font-weight: normal;
+            /* 太字をなくす */
+            color: #4a4a4a;
+            /* 文字色を元に戻す */
         }
+
         .details {
-            margin-top: 15px; /* 詳細情報セクション全体の上のマージンを詰める */
-            flex-grow: 1; /* 詳細情報が利用可能なスペースを最大限使うようにする */
+            margin-top: 15px;
+            /* 詳細情報セクション全体の上のマージンを詰める */
+            flex-grow: 1;
+            /* 詳細情報が利用可能なスペースを最大限使うようにする */
             display: flex;
-            flex-direction: column; /* flexboxを適用して子要素の配置を制御 */
+            flex-direction: column;
+            /* flexboxを適用して子要素の配置を制御 */
         }
+
         .details h3 {
             font-size: 1.2em;
             font-weight: 500;
-            margin-top: 20px; /* 修正: 見出しと前の項目の間隔をさらに広げる */
+            margin-top: 20px;
+            /* 修正: 見出しと前の項目の間隔をさらに広げる */
             margin-bottom: 5px;
             border-bottom: 1px solid #e0e0e0;
             padding-bottom: 5px;
-            color: #2c3e50;
+            color: #000000;
         }
+
         /* 当選政党・最多得票政党の区切り線 */
         .details .highlighted-section {
             border-bottom: 1px solid #e0e0e0;
             padding-bottom: 5px;
-            margin-bottom: 15px; /* 小選挙区・比例代表見出し下のマージンと合わせる */
+            margin-bottom: 15px;
+            /* 小選挙区・比例代表見出し下のマージンと合わせる */
         }
- 
-/* PCレイアウト時の詳細情報パネルの段落スタイル */
-.details p {
-    font-size: 1.05em;
-    margin-bottom: 0; /* 各行間のマージンを詰める */
-    line-height: 1.2; /* 行間を少し広げて読みやすくする */
-    color: #2c3e50; /* テキストの色をより濃く */
-}
 
-/* 詳細情報パネル内の<hr>タグのスタイルを調整 */
-.details hr {
-    border: none; /* デフォルトのボーダーを無効化 */
-    height: 0.8px; /* 線の太さを1ピクセルに設定 */
-    background-color: #e0e0e0; /* 薄い灰色を明示的に指定 */
-    margin: 10px 0; /* 上下の余白 */
-}
+        /* PCレイアウト時の詳細情報パネルの段落スタイル */
+        .details p {
+            font-size: 1.05em;
+            margin-bottom: 0;
+            /* 各行間のマージンを詰める */
+            line-height: 1.2;
+            /* 行間を少し広げて読みやすくする */
+            color: #000000;
+            /* テキストの色をより濃く */
+        }
+
+        /* 詳細情報パネル内の<hr>タグのスタイルを調整 */
+        .details hr {
+            border: none;
+            /* デフォルトのボーダーを無効化 */
+            height: 0.8px;
+            /* 線の太さを1ピクセルに設定 */
+            background-color: #e0e0e0;
+            /* 薄い灰色を明示的に指定 */
+            margin: 10px 0;
+            /* 上下の余白 */
+        }
 
         /* 詳細情報パネルのスタイル */
         #info-panel {
-            background-color: #fdfdfd;
+            background-color: #ffffff;
             border-radius: 15px;
-            padding: 10px 15px; /* パネル全体のパディングを詰める */
-            flex-grow: 1; /* 親要素の残りの高さを埋めるようにする */
-            overflow-y: auto; /* 必要に応じて自動でスクロールバーを表示 */
+            padding: 10px 15px;
+            /* パネル全体のパディングを詰める */
+            flex-grow: 1;
+            /* 親要素の残りの高さを埋めるようにする */
+            overflow-y: auto;
+            /* 必要に応じて自動でスクロールバーを表示 */
         }
+
         /* PCレイアウト時のサイドパネルの選挙区名・地域名のスタイルを調整 */
         #info-panel h2 {
             font-size: 1.3em;
             margin-top: 0;
             margin-bottom: 0;
-            color: #2c3e50;
-            border-bottom: none; /* 区切り線を削除 */
+            color: #000000;
+            border-bottom: none;
+            /* 区切り線を削除 */
         }
+
         #info-panel p {
-            font-size: 0.9em; /* フォントサイズも少し小さくして行数を稼ぐ */
-            margin-bottom: 0; /* 各行間のマージンを詰める */
-            line-height: 1; /* 行間を詰める */
-            color: #2c3e50; /* テキストの色をより濃く */
+            font-size: 0.9em;
+            /* フォントサイズも少し小さくして行数を稼ぐ */
+            margin-bottom: 0;
+            /* 各行間のマージンを詰める */
+            line-height: 1;
+            /* 行間を詰める */
+            color: #000000;
+            /* テキストの色をより濃く */
         }
+
         /* ハイライト用スタイル */
         .highlighted-info-text {
             color: #990000 !important;
         }
+
         /* 説明モーダル/パネルのスタイル */
         .explanation-overlay {
             position: fixed;
@@ -230,13 +290,16 @@
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
+
         .explanation-overlay.active {
             opacity: 1;
             visibility: visible;
         }
+
         .explanation-panel {
             background-color: #ffffff;
-            padding: 30px; /* PCレイアウトのパディング */
+            padding: 30px;
+            /* PCレイアウトのパディング */
             border-radius: 15px;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
             max-width: 600px;
@@ -246,35 +309,44 @@
             transform: translateY(20px);
             transition: transform 0.3s ease;
         }
+
         .explanation-overlay.active .explanation-panel {
             transform: translateY(0);
         }
+
         .explanation-panel h2 {
             font-size: 1.8em;
-            color: #990000;
+            color: #ffcc00;
             margin-top: 0;
             margin-bottom: 20px;
             border-bottom: 2px solid #e0e0e0;
             padding-bottom: 10px;
         }
+
         .explanation-panel p {
             font-size: 1.1em;
             line-height: 1.7;
             color: #333;
             margin-bottom: 15px;
         }
+
         .explanation-panel ul {
-            list-style-type: none; /* リストのデフォルトのスタイルを削除 */
-            padding-left: 0; /* 左のパディングを削除 */
-            margin-left: 0; /* 左のマージンを削除 */
+            list-style-type: none;
+            /* リストのデフォルトのスタイルを削除 */
+            padding-left: 0;
+            /* 左のパディングを削除 */
+            margin-left: 0;
+            /* 左のマージンを削除 */
             margin-bottom: 15px;
         }
+
         .explanation-panel li {
             font-size: 1.05em;
             line-height: 1.6;
             margin-bottom: 8px;
             color: #444;
         }
+
         /* 新しい凡例コンテナのスタイル */
         .explanation-panel .legend-in-explanation {
             margin-top: 25px;
@@ -282,11 +354,15 @@
             padding-top: 15px;
             border-top: 1px solid #e0e0e0;
         }
+
         .explanation-panel .legend-in-explanation .legend-item {
-            font-size: 1em; /* 説明パネル内の凡例は少し小さく */
+            font-size: 1em;
+            /* 説明パネル内の凡例は少し小さく */
             margin-bottom: 8px;
-            cursor: pointer; /* クリック可能であることを示す */
+            cursor: pointer;
+            /* クリック可能であることを示す */
         }
+
         /* 説明パネル内のカラーシンボルの角を丸くする */
         .explanation-panel .legend-in-explanation .legend-color {
             width: 24px;
@@ -295,6 +371,7 @@
             border-radius: 15px;
             box-sizing: border-box;
         }
+
         .explanation-panel .close-button {
             position: absolute;
             top: 15px;
@@ -306,15 +383,17 @@
             cursor: pointer;
             transition: color 0.2s ease;
         }
+
         .explanation-panel .close-button:hover {
             color: #333;
         }
-        
+
         /* 新しく追加する区切り線 */
         .explanation-panel .section-divider {
             border-top: 1px solid #e0e0e0;
             margin: 20px 0;
         }
+
         /* LeafletのSVG要素内にパターンを定義するためのCSSを追加 */
         #map svg defs {
             position: absolute;
@@ -322,15 +401,17 @@
             height: 0;
             overflow: hidden;
         }
-        
+
         /* 新しい切り替えボタンのスタイル */
         .switch-buttons {
             display: flex;
             justify-content: flex-start;
-            flex-wrap: wrap; /* ボタンが複数行になるように設定 */
+            flex-wrap: wrap;
+            /* ボタンが複数行になるように設定 */
             margin-bottom: 20px;
             gap: 10px;
         }
+
         .switch-btn {
             background-color: #f0f0f0;
             border: 1px solid #ccc;
@@ -340,15 +421,18 @@
             border-radius: 8px;
             transition: background-color 0.2s, box-shadow 0.2s;
         }
+
         .switch-btn:hover {
             background-color: #e0e0e0;
         }
+
         .switch-btn.selected {
             background-color: #007bff;
             color: white;
             border-color: #007bff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+
         /* 新規追加: ボタンと凡例リストのスタイル */
         .explanation-panel .legend-section-button {
             display: flex;
@@ -365,102 +449,138 @@
             margin-top: 10px;
             border-bottom: 1px solid #e0e0e0;
         }
+
         .explanation-panel .legend-section-button:hover {
             color: #990000;
         }
-        
+
         /* 凡例リストの表示/非表示 */
         .legend-list.hidden {
             display: none;
         }
+
         /* アイコンの回転アニメーション */
         .legend-section-button .material-icons {
             transition: transform 0.3s ease;
         }
+
         .legend-section-button.collapsed .material-icons {
             transform: rotate(-90deg);
         }
+
         /* --- スマートフォン向けのスタイル (画面幅が768px以下の場合) --- */
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
-                padding: 7.5px; /* 修正: スマホの全体余白を半分に */
+                padding: 7.5px;
+                /* 修正: スマホの全体余白を半分に */
                 gap: 0;
                 height: 100%;
                 width: 100%;
             }
+
             .sidebar {
                 display: none;
             }
+
             #map {
                 flex-grow: 1;
                 height: 100%;
                 /* border-radius: 12px; はPC版のスタイルが継承されるため、ここでの変更は不要 */
-                box-shadow: none; /* スマホでは影をなくす（任意） */
+                box-shadow: none;
+                /* スマホでは影をなくす（任意） */
                 overflow: hidden;
             }
+
             #info-panel {
                 display: none;
             }
+
             /* Info button on mobile */
             .info-button {
-                top: 12.5px; /* 修正: スマホでもPCと同様に情報ボタンを15pxの位置に */
-                right: 12.5px; /* 修正: スマホでもPCと同様に情報ボタンを15pxの位置に */
+                top: 12.5px;
+                /* 修正: スマホでもPCと同様に情報ボタンを15pxの位置に */
+                right: 12.5px;
+                /* 修正: スマホでもPCと同様に情報ボタンを15pxの位置に */
                 width: 35px;
                 height: 35px;
                 /* Material Iconsに対応するためにfont-sizeを調整 */
-                font-size: 24px; 
+                font-size: 24px;
                 z-index: 600;
             }
+
             /* Leafletポップアップのスタイル調整 */
             .leaflet-popup-content-wrapper {
                 border-radius: 15px;
-                padding: 2px; /* パディングをさらに減らす */
+                padding: 2px;
+                /* パディングをさらに減らす */
                 font-size: 13px;
-                line-height: 1.1; /* 行間をさらに詰める */
-                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                line-height: 1.1;
+                /* 行間をさらに詰める */
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
                 /* 画面端に余裕を持たせるための調整 */
                 margin-left: 5px;
                 margin-right: 5px;
             }
+
             .leaflet-popup-content {
-                word-break: break-word; /* テキストが画面幅を超えないように自動改行 */
+                word-break: break-word;
+                /* テキストが画面幅を超えないように自動改行 */
             }
+
             .leaflet-popup-content h2 {
                 font-size: 1em;
                 margin-top: 0;
-                margin-bottom: 3px; /* マージンをさらに減らす */
-                line-height: 1.1; /* 行間をさらに詰める */
+                margin-bottom: 3px;
+                /* マージンをさらに減らす */
+                line-height: 1.1;
+                /* 行間をさらに詰める */
                 color: #2c3e50;
             }
+
             .leaflet-popup-content h3 {
                 font-size: 1em;
                 margin-top: 5px;
                 margin-bottom: 2px;
-                border-bottom: 1px solid #e0e0e0; /* 追加: 区切り線 */
-                padding-bottom: 3px; /* 追加: 区切り線と文字の間のスペース */
+                border-bottom: 1px solid #e0e0e0;
+                /* 追加: 区切り線 */
+                padding-bottom: 3px;
+                /* 追加: 区切り線と文字の間のスペース */
             }
+
             .leaflet-popup-content p {
-                font-size: 1em; /* 段落のフォントサイズをさらに小さく */
-                margin-top: 0; /* 段落の上マージンを削除 */
-                margin-bottom: 5px; /* 修正: 本文間隔をさらに広げる */
-                line-height: 1.2; /* 行間を詰める */
+                font-size: 1em;
+                /* 段落のフォントサイズをさらに小さく */
+                margin-top: 0;
+                /* 段落の上マージンを削除 */
+                margin-bottom: 5px;
+                /* 修正: 本文間隔をさらに広げる */
+                line-height: 1.2;
+                /* 行間を詰める */
             }
+
             .leaflet-popup-content hr {
                 border: none;
                 height: 0.8px;
                 background-color: #e0e0e0;
-                margin: 3px 0; /* 余白をさらに削減 */
+                margin: 3px 0;
+                /* 余白をさらに削減 */
             }
+
             .leaflet-popup-content .highlighted-info-text {
                 color: #990000 !important;
             }
+
             /* Leafletポップアップの閉じるボタンの位置調整 */
             .leaflet-popup-close-button {
-                top: 5px !important; /* ボタン位置を上へ */
-                right: 10px !important; /* ボタン位置を右へ */
-                font-size: 1.5em; /* ボタンのサイズを小さく */
+                top: 5px !important;
+                /* ボタン位置を上へ */
+                right: 10px !important;
+                /* ボタン位置を右へ */
+                font-size: 1.5em;
+                /* ボタンのサイズを小さく */
             }
+
             /* 説明パネルのスマホ対応 */
             .explanation-panel {
                 margin: auto;
@@ -472,29 +592,32 @@
                 padding: 30px;
                 box-sizing: border-box;
             }
+
             .explanation-panel h2 {
                 font-size: 1.5em;
             }
-            .explanation-panel p, .explanation-panel li {
+
+            .explanation-panel p,
+            .explanation-panel li {
                 font-size: 1em;
             }
         }
 
-/* 開閉ボタンのハイライトを完全に無効にする */
-.legend-section-button:hover,
-.legend-section-button:focus,
-.legend-section-button:active,
-.legend-section-button.collapsed,
-.legend-section-button.selected {
-    outline: none !important;
-    box-shadow: none !important;
-    color: #333 !important;
-    background-color: transparent !important;
-    font-weight: bold !important;
-}
-
+        /* 開閉ボタンのハイライトを完全に無効にする */
+        .legend-section-button:hover,
+        .legend-section-button:focus,
+        .legend-section-button:active,
+        .legend-section-button.collapsed,
+        .legend-section-button.selected {
+            outline: none !important;
+            box-shadow: none !important;
+            color: #333 !important;
+            background-color: transparent !important;
+            font-weight: bold !important;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <button id="infoButton" class="info-button" aria-label="地図の説明を表示">
@@ -526,7 +649,8 @@
                     </button>
                     <ul class="legend-list hidden" id="sm-legend-list">
                         <li class="legend-item" data-party-name="sm-winner">
-                            <span class="legend-color" style="background: linear-gradient(to right, #000000, #ff0000, #a64d79);"></span>
+                            <span class="legend-color"
+                                style="background: conic-gradient(#000000 0deg 150deg, #46bdc6 150deg 240deg, #ff0000 240deg 320deg, #38761d 320deg 350deg, #a64d79 350deg 360deg);"></span>
                             当選政党
                         </li>
                         <li class="legend-item" data-party-name="SPD-sm">
@@ -644,7 +768,8 @@
                     </button>
                     <ul class="legend-list hidden" id="lg-legend-list">
                         <li class="legend-item" data-party-name="lg-winner">
-                            <span class="legend-color" style="background: linear-gradient(to right, #000000, #ff0000, #a64d79);"></span>
+                            <span class="legend-color"
+                                style="background: conic-gradient(#000000 0deg 150deg, #46bdc6 150deg 235deg, #ff0000 235deg 320deg, #38761d 320deg 345deg, #a64d79 345deg 360deg);"></span>
                             最多得票政党
                         </li>
                         <li class="legend-item" data-party-name="SPD-lg">
@@ -767,603 +892,604 @@
                 </div>
             </div>
             <div class="section-divider"></div>
-            <p><strong>クリックで詳細:</strong> 地図上の選挙区をクリックすると、サイドバー（PC）またはポップアップ（スマートフォン）にその選挙区の各政党の得票率詳細が表示されます。</p>
-            
-            <p><strong>データソース:</strong> ドイツ政府が公表するデータに基づいています。</p>
-        </div>            
+            <p><strong>クリックで詳細</strong>: 地図上の選挙区をクリックすると、サイドバー（PC）またはポップアップ（スマートフォン）にその選挙区の各政党の得票率詳細が表示されます。</p>
+            <p><strong>データソース</strong>: ドイツ政府が公表するデータに基づいています。</p>
+
+        </div>
     </div>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script>
-    // Leafletマップの初期化
-    var map = L.map('map', { zoomControl: false });
-    // ベースマップ（背景地図）の追加
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19,
-        attribution: '©<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ©<a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd'
-    }).addTo(map);
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Leafletマップの初期化
+        var map = L.map('map', { zoomControl: false });
+        // ベースマップ（背景地図）の追加
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            attribution: '©<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ©<a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd'
+        }).addTo(map);
 
-    // GeoJSONデータの読み込みと表示
-    var geojsonDataPath = '2025独.geojson';
-    var geojsonLayer;
+        // GeoJSONデータの読み込みと表示
+        var geojsonDataPath = '2025独.geojson';
+        var geojsonLayer;
 
-    // 政党と色のマッピング
-    const partyColors = {
-        'SPD': '#ff0000',
-        'CDU': '#000000',
-        'Grüne': '#38761d',
-        'FDP': '#bf9000',
-        'AfD': '#46bdc6',
-        'CSU': '#000000',
-        'Die Linke': '#a64d79',
-        'FW': '#ff9900',
-        'Tierschutzpartei': '#45818e',
-        'die BASIS': '#134f5c',
-        'Die PARTEI': '#990000',
-        'Team Todenhöfer': '#20124d',
-        'Piratenpartei': '#f6b26b',
-        'Volt': '#674ea7',
-        'ÖDP': '#e69138',
-        'SSW': '#1c4587',
-        'PfV': '#93c47d',
-        'Die Humanisten': '#9fc5e8',
-        'Bündnis C': '#3d85c6',
-        'BP': '#00ffff',
-        'MLPD': '#ea9999',
-        'MW': '#fce5cd',
-        'PdF': '#ffe599',
-        'SGP': '#980000',
-        'BüSo': '#d0e0e3',
-        'BD': '#b4a7d6',
-        'BSW': '#85200c',
-        'MERA25': '#f9cb9c',
-        'WerteUnion': '#0c343d',
-        'その他': '#ffffff',
-        '当選者なし': '#00000000',
-    };
-
-    // 得票率フィールドのマッピング
-    const voteFields = {
-        'SPD': { 'sm': 'GIS2025独_field_7', 'lg': 'GIS2025独_field_9' },
-        'CDU': { 'sm': 'GIS2025独_field_11', 'lg': 'GIS2025独_field_13' },
-        'Grüne': { 'sm': 'GIS2025独_field_15', 'lg': 'GIS2025独_field_17' },
-        'FDP': { 'sm': 'GIS2025独_field_19', 'lg': 'GIS2025独_field_21' },
-        'AfD': { 'sm': 'GIS2025独_field_23', 'lg': 'GIS2025独_field_25' },
-        'CSU': { 'sm': 'GIS2025独_field_27', 'lg': 'GIS2025独_field_29' },
-        'Die Linke': { 'sm': 'GIS2025独_field_31', 'lg': 'GIS2025独_field_33' },
-        'FW': { 'sm': 'GIS2025独_field_35', 'lg': 'GIS2025独_field_37' },
-        'Tierschutzpartei': { 'sm': 'GIS2025独_field_39', 'lg': 'GIS2025独_field_41' },
-        'die BASIS': { 'sm': 'GIS2025独_field_43', 'lg': 'GIS2025独_field_45' },
-        'Die PARTEI': { 'sm': 'GIS2025独_field_47', 'lg': 'GIS2025独_field_49' },
-        'Team Todenhöfer': { 'sm': 'GIS2025独_field_51', 'lg': 'GIS2025独_field_53' },
-        'Piratenpartei': { 'sm': 'GIS2025独_field_55', 'lg': 'GIS2025独_field_57' },
-        'Volt': { 'sm': 'GIS2025独_field_59', 'lg': 'GIS2025独_field_61' },
-        'ÖDP': { 'sm': 'GIS2025独_field_63', 'lg': 'GIS2025独_field_65' },
-        'SSW': { 'sm': 'GIS2025独_field_67', 'lg': 'GIS2025独_field_69' },
-        'PfV': { 'sm': 'GIS2025独_field_71', 'lg': 'GIS2025独_field_73' },
-        'Die Humanisten': { 'sm': 'GIS2025独_field_75', 'lg': 'GIS2025独_field_77' },
-        'Bündnis C': { 'sm': 'GIS2025独_field_79', 'lg': 'GIS2025独_field_81' },
-        'BP': { 'sm': 'GIS2025独_field_83', 'lg': 'GIS2025独_field_85' },
-        'MLPD': { 'sm': 'GIS2025独_field_87', 'lg': 'GIS2025独_field_89' },
-        'MW': { 'sm': 'GIS2025独_field_91', 'lg': 'GIS2025独_field_93' },
-        'PdF': { 'sm': 'GIS2025独_field_95', 'lg': 'GIS2025独_field_97' },
-        'SGP': { 'sm': 'GIS2025独_field_99', 'lg': 'GIS2025独_field_101' },
-        'BüSo': { 'sm': 'GIS2025独_field_103', 'lg': 'GIS2025独_field_105' },
-        'BD': { 'sm': 'GIS2025独_field_107', 'lg': 'GIS2025独_field_109' },
-        'BSW': { 'sm': 'GIS2025独_field_111', 'lg': 'GIS2025独_field_113' },
-        'MERA25': { 'sm': 'GIS2025独_field_115', 'lg': 'GIS2025独_field_117' },
-        'WerteUnion': { 'sm': 'GIS2025独_field_119', 'lg': 'GIS2025独_field_121' },
-        'その他': { 'sm': 'GIS2025独_field_123', 'lg': 'GIS2025独_field_125' }
-    };
-    // 票数フィールドのマッピング
-    const voteCountFields = {
-        'SPD': { 'sm': 'GIS2025独_SPD小', 'lg': 'GIS2025独_SPD比' },
-        'CDU': { 'sm': 'GIS2025独_CDU小', 'lg': 'GIS2025独_CDU比' },
-        'Grüne': { 'sm': 'GIS2025独_Grüne小', 'lg': 'GIS2025独_Grüne比' },
-        'FDP': { 'sm': 'GIS2025独_FDP小', 'lg': 'GIS2025独_FDP比' },
-        'AfD': { 'sm': 'GIS2025独_AfD小', 'lg': 'GIS2025独_AfD比' },
-        'CSU': { 'sm': 'GIS2025独_CSU小', 'lg': 'GIS2025独_CSU比' },
-        'Die Linke': { 'sm': 'GIS2025独_Die Linke小', 'lg': 'GIS2025独_Die Linke比' },
-        'FW': { 'sm': 'GIS2025独_FW小', 'lg': 'GIS2025独_FW比' },
-        'Tierschutzpartei': { 'sm': 'GIS2025独_Tierschutzpartei小', 'lg': 'GIS2025独_Tierschutzpartei比' },
-        'die BASIS': { 'sm': 'GIS2025独_die BASIS小', 'lg': 'GIS2025独_die BASIS比' },
-        'Die PARTEI': { 'sm': 'GIS2025独_Die PARTEI小', 'lg': 'GIS2025独_Die PARTEI比' },
-        'Team Todenhöfer': { 'sm': 'GIS2025独_Team Todenhöfer小', 'lg': 'GIS2025独_Team Todenhöfer比' },
-        'Piratenpartei': { 'sm': 'GIS2025独_Piratenpartei小', 'lg': 'GIS2025独_Piratenpartei比' },
-        'Volt': { 'sm': 'GIS2025独_Volt小', 'lg': 'GIS2025独_Volt比' },
-        'ÖDP': { 'sm': 'GIS2025独_ÖDP小', 'lg': 'GIS2025独_ÖDP比' },
-        'SSW': { 'sm': 'GIS2025独_SSW小', 'lg': 'GIS2025独_SSW比' },
-        'PfV': { 'sm': 'GIS2025独_PfV小', 'lg': 'GIS2025独_PfV比' },
-        'Die Humanisten': { 'sm': 'GIS2025独_Die Humanisten小', 'lg': 'GIS2025独_Die Humanisten比' },
-        'Bündnis C': { 'sm': 'GIS2025独_Bündnis C小', 'lg': 'GIS2025独_Bündnis C比' },
-        'BP': { 'sm': 'GIS2025独_BP小', 'lg': 'GIS2025独_BP比' },
-        'MLPD': { 'sm': 'GIS2025独_MLPD小', 'lg': 'GIS2025独_MLPD比' },
-        'MW': { 'sm': 'GIS2025独_MW小', 'lg': 'GIS2025独_MW比' },
-        'PdF': { 'sm': 'GIS2025独_PdF小', 'lg': 'GIS2025独_PdF比' },
-        'SGP': { 'sm': 'GIS2025独_SGP小', 'lg': 'GIS2025独_SGP比' },
-        'BüSo': { 'sm': 'GIS2025独_BüSo小', 'lg': 'GIS2025独_BüSo比' },
-        'BD': { 'sm': 'GIS2025独_BD小', 'lg': 'GIS2025独_BD比' },
-        'BSW': { 'sm': 'GIS2025独_BSW小', 'lg': 'GIS2025独_BSW比' },
-        'MERA25': { 'sm': 'GIS2025独_MERA25小', 'lg': 'GIS2025独_MERA25比' },
-        'WerteUnion': { 'sm': 'GIS2025独_WerteUnion小', 'lg': 'GIS2025独_WerteUnion比' },
-        'その他': { 'sm': 'GIS2025独_その他小', 'lg': 'GIS2025独_その他比' }
-    };
-    // 各政党の最高得票率を格納する変数
-    let maxPercentages = {};
-    let currentViewMode = 'sm-winner'; // デフォルトは小選挙区当選政党
-    let currentSelectedLayer = null;
-    let isGeoJSONLoaded = false;
-    
-    // 比例代表の最多得票政党を決定するヘルパー関数
-    function getWinnerParty(properties, type) {
-        if (type === 'sm') {
-            const winningParty = properties['GIS2025独_当選政党'];
-            if (winningParty && winningParty !== '当選者なし') {
-                return winningParty;
-            }
-        } else if (type === 'lg') {
-            let maxPercentage = -1;
-            let winner = 'その他';
-            // 全政党の比例代表得票率を比較して最多得票政党を見つける
-            for (const party in voteFields) {
-                const percentage = properties[voteFields[party]['lg']] || 0;
-                if (percentage > maxPercentage) {
-                    maxPercentage = percentage;
-                    winner = party;
-                }
-            }
-            return winner;
-        }
-        return null;
-    }
-    
-
-
-// 地物のスタイルを決定する関数
-    function style(feature) {
-        const props = feature.properties;
-        let fillColor = '#ffffff';
-        let fillOpacity = 0;
-        if (isGeoJSONLoaded) {
-            if (currentViewMode === 'sm-winner') {
-                const winner = props['GIS2025独_当選政党'] || '当選者なし';
-                const winnerPercentage = props['GIS2025独_当選得票率'] || 0;
-                if (winner && winner !== '当選者なし') {
-                    fillColor = partyColors[winner] || '#ffffff';
-                    // 修正箇所: 50%を基準に不透明度を計算
-                    fillOpacity = Math.min(1.0, (winnerPercentage || 0) / 50);
-                } else {
-                    fillColor = '#ffffff';
-                    fillOpacity = 0;
-                }
-            } else if (currentViewMode === 'lg-winner') {
-                const winner = getWinnerParty(props, 'lg');
-                const winnerPercentage = props[voteFields[winner]['lg']] || 0;
-                fillColor = partyColors[winner] || '#ffffff';
-                fillOpacity = Math.min(1.0, (winnerPercentage || 0) / 50);
-            } else { // 個別政党の得票率表示
-                const modeParts = currentViewMode.split('-');
-                const party = modeParts[0];
-                const voteType = modeParts[1] === 'sm' ? 'sm' : 'lg';
-                const percentage = props[voteFields[party][voteType]] || 0;
-                const maxPercentage = (maxPercentages[party] && maxPercentages[party][voteType]) ? maxPercentages[party][voteType] : 1;
-                
-                fillColor = partyColors[party] || '#ffffff';
-                fillOpacity = (percentage || 0) / maxPercentage;
-            }
-        } else {
-            // GeoJSONがロードされていない場合は、すべての地物を半透明のグレーで表示
-            fillColor = '#cccccc';
-            fillOpacity = 0.5;
-        }
-        return {
-            fillColor: fillColor,
-            weight: 1,
-            opacity: 1,
-            color: 'white',
-            dashArray: '3',
-            fillOpacity: fillOpacity
+        // 政党と色のマッピング
+        const partyColors = {
+            'SPD': '#ff0000',
+            'CDU': '#000000',
+            'Grüne': '#38761d',
+            'FDP': '#bf9000',
+            'AfD': '#46bdc6',
+            'CSU': '#000000',
+            'Die Linke': '#a64d79',
+            'FW': '#ff9900',
+            'Tierschutzpartei': '#45818e',
+            'die BASIS': '#134f5c',
+            'Die PARTEI': '#990000',
+            'Team Todenhöfer': '#20124d',
+            'Piratenpartei': '#f6b26b',
+            'Volt': '#674ea7',
+            'ÖDP': '#e69138',
+            'SSW': '#1c4587',
+            'PfV': '#93c47d',
+            'Die Humanisten': '#9fc5e8',
+            'Bündnis C': '#3d85c6',
+            'BP': '#00ffff',
+            'MLPD': '#ea9999',
+            'MW': '#fce5cd',
+            'PdF': '#ffe599',
+            'SGP': '#980000',
+            'BüSo': '#d0e0e3',
+            'BD': '#b4a7d6',
+            'BSW': '#85200c',
+            'MERA25': '#f9cb9c',
+            'WerteUnion': '#0c343d',
+            'その他': '#ffffff',
+            '当選者なし': '#00000000',
         };
-    }
 
-
-
-    
-
-
-// 地物選択時のスタイル（境界線のみをハイライト）
-function highlightFeature(layer) {
-    const originalStyle = style(layer.feature);
-    layer.setStyle({
-        ...originalStyle,
-        weight: 3,
-        color: '#990000', // ここを#990000に変更
-        dashArray: ''
-    });
-    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        layer.bringToFront();
-    }
-}
-
-
-
-    
-    // 新規追加: 詳細情報パネルをクリアする関数
-    function clearInfoPanel() {
-        document.getElementById('info-panel').innerHTML = '地図をクリックするとここに情報が表示されます。';
-    }
-    
-    // 選択をリセットする関数
-    function resetHighlight() {
-        if (geojsonLayer && currentSelectedLayer) {
-            geojsonLayer.resetStyle(currentSelectedLayer);
-            currentSelectedLayer = null;
-        }
-        clearInfoPanel();
-    }
-    
-    function onEachFeature(feature, layer) {
-        layer.on({
-            click: function(e) {
-                // GeoJSONがロードされていなければ何もしない
-                if (!isGeoJSONLoaded) {
-                    return;
-                }
-                
-                // 常に以前の選択状態をリセットする
-                resetHighlight();
-                // 新しいレイヤーを選択状態に設定
-                currentSelectedLayer = e.target;
-                
-                // 新しいレイヤーをハイライト
-                highlightFeature(e.target);
-                // PCではサイドバー、モバイルではポップアップを更新
-                if (window.innerWidth > 768) {
-                    updateInfoPanel(e.target.feature.properties);
-                } else {
-                    L.popup()
-                        .setLatLng(e.latlng)
-                        .setContent(getPopupContent(e.target.feature.properties))
-                        .openOn(map);
-                }
-            }
-        });
-    }
-    
-    // 地物以外の領域がクリックされたときに選択を解除する
-    map.on('click', function(e) {
-        const clickedOnFeature = e.originalEvent && e.originalEvent.target && e.originalEvent.target.classList.contains('leaflet-interactive');
-        if (!clickedOnFeature) {
-            resetHighlight();
-        }
-    });
-
-    // 政党データを取得し、得票数でソートするヘルパー関数
-    function getSortedPartyData(props, voteType) {
-        const parties = Object.keys(voteFields).filter(p => p !== 'その他').map(party => {
-            return {
-                partyName: party,
-                percentage: props[voteFields[party][voteType]] || 0,
-                voteCount: props[voteCountFields[party][voteType]] || 0
-            };
-        }).filter(p => p.voteCount > 0);
-
-        // 得票数でソート
-        parties.sort((a, b) => b.voteCount - a.voteCount);
-
-        // 「その他」の情報を取得し、最後に加える
-        const otherParty = {
-            partyName: 'その他',
-            percentage: props[voteFields['その他'][voteType]] || 0,
-            voteCount: props[voteCountFields['その他'][voteType]] || 0
+        // 得票率フィールドのマッピング
+        const voteFields = {
+            'SPD': { 'sm': 'GIS2025独_field_7', 'lg': 'GIS2025独_field_9' },
+            'CDU': { 'sm': 'GIS2025独_field_11', 'lg': 'GIS2025独_field_13' },
+            'Grüne': { 'sm': 'GIS2025独_field_15', 'lg': 'GIS2025独_field_17' },
+            'FDP': { 'sm': 'GIS2025独_field_19', 'lg': 'GIS2025独_field_21' },
+            'AfD': { 'sm': 'GIS2025独_field_23', 'lg': 'GIS2025独_field_25' },
+            'CSU': { 'sm': 'GIS2025独_field_27', 'lg': 'GIS2025独_field_29' },
+            'Die Linke': { 'sm': 'GIS2025独_field_31', 'lg': 'GIS2025独_field_33' },
+            'FW': { 'sm': 'GIS2025独_field_35', 'lg': 'GIS2025独_field_37' },
+            'Tierschutzpartei': { 'sm': 'GIS2025独_field_39', 'lg': 'GIS2025独_field_41' },
+            'die BASIS': { 'sm': 'GIS2025独_field_43', 'lg': 'GIS2025独_field_45' },
+            'Die PARTEI': { 'sm': 'GIS2025独_field_47', 'lg': 'GIS2025独_field_49' },
+            'Team Todenhöfer': { 'sm': 'GIS2025独_field_51', 'lg': 'GIS2025独_field_53' },
+            'Piratenpartei': { 'sm': 'GIS2025独_field_55', 'lg': 'GIS2025独_field_57' },
+            'Volt': { 'sm': 'GIS2025独_field_59', 'lg': 'GIS2025独_field_61' },
+            'ÖDP': { 'sm': 'GIS2025独_field_63', 'lg': 'GIS2025独_field_65' },
+            'SSW': { 'sm': 'GIS2025独_field_67', 'lg': 'GIS2025独_field_69' },
+            'PfV': { 'sm': 'GIS2025独_field_71', 'lg': 'GIS2025独_field_73' },
+            'Die Humanisten': { 'sm': 'GIS2025独_field_75', 'lg': 'GIS2025独_field_77' },
+            'Bündnis C': { 'sm': 'GIS2025独_field_79', 'lg': 'GIS2025独_field_81' },
+            'BP': { 'sm': 'GIS2025独_field_83', 'lg': 'GIS2025独_field_85' },
+            'MLPD': { 'sm': 'GIS2025独_field_87', 'lg': 'GIS2025独_field_89' },
+            'MW': { 'sm': 'GIS2025独_field_91', 'lg': 'GIS2025独_field_93' },
+            'PdF': { 'sm': 'GIS2025独_field_95', 'lg': 'GIS2025独_field_97' },
+            'SGP': { 'sm': 'GIS2025独_field_99', 'lg': 'GIS2025独_field_101' },
+            'BüSo': { 'sm': 'GIS2025独_field_103', 'lg': 'GIS2025独_field_105' },
+            'BD': { 'sm': 'GIS2025独_field_107', 'lg': 'GIS2025独_field_109' },
+            'BSW': { 'sm': 'GIS2025独_field_111', 'lg': 'GIS2025独_field_113' },
+            'MERA25': { 'sm': 'GIS2025独_field_115', 'lg': 'GIS2025独_field_117' },
+            'WerteUnion': { 'sm': 'GIS2025独_field_119', 'lg': 'GIS2025独_field_121' },
+            'その他': { 'sm': 'GIS2025独_field_123', 'lg': 'GIS2025独_field_125' }
         };
-        if (otherParty.voteCount > 0) {
-            parties.push(otherParty);
-        }
-        return parties;
-    }
+        // 票数フィールドのマッピング
+        const voteCountFields = {
+            'SPD': { 'sm': 'GIS2025独_SPD小', 'lg': 'GIS2025独_SPD比' },
+            'CDU': { 'sm': 'GIS2025独_CDU小', 'lg': 'GIS2025独_CDU比' },
+            'Grüne': { 'sm': 'GIS2025独_Grüne小', 'lg': 'GIS2025独_Grüne比' },
+            'FDP': { 'sm': 'GIS2025独_FDP小', 'lg': 'GIS2025独_FDP比' },
+            'AfD': { 'sm': 'GIS2025独_AfD小', 'lg': 'GIS2025独_AfD比' },
+            'CSU': { 'sm': 'GIS2025独_CSU小', 'lg': 'GIS2025独_CSU比' },
+            'Die Linke': { 'sm': 'GIS2025独_Die Linke小', 'lg': 'GIS2025独_Die Linke比' },
+            'FW': { 'sm': 'GIS2025独_FW小', 'lg': 'GIS2025独_FW比' },
+            'Tierschutzpartei': { 'sm': 'GIS2025独_Tierschutzpartei小', 'lg': 'GIS2025独_Tierschutzpartei比' },
+            'die BASIS': { 'sm': 'GIS2025独_die BASIS小', 'lg': 'GIS2025独_die BASIS比' },
+            'Die PARTEI': { 'sm': 'GIS2025独_Die PARTEI小', 'lg': 'GIS2025独_Die PARTEI比' },
+            'Team Todenhöfer': { 'sm': 'GIS2025独_Team Todenhöfer小', 'lg': 'GIS2025独_Team Todenhöfer比' },
+            'Piratenpartei': { 'sm': 'GIS2025独_Piratenpartei小', 'lg': 'GIS2025独_Piratenpartei比' },
+            'Volt': { 'sm': 'GIS2025独_Volt小', 'lg': 'GIS2025独_Volt比' },
+            'ÖDP': { 'sm': 'GIS2025独_ÖDP小', 'lg': 'GIS2025独_ÖDP比' },
+            'SSW': { 'sm': 'GIS2025独_SSW小', 'lg': 'GIS2025独_SSW比' },
+            'PfV': { 'sm': 'GIS2025独_PfV小', 'lg': 'GIS2025独_PfV比' },
+            'Die Humanisten': { 'sm': 'GIS2025独_Die Humanisten小', 'lg': 'GIS2025独_Die Humanisten比' },
+            'Bündnis C': { 'sm': 'GIS2025独_Bündnis C小', 'lg': 'GIS2025独_Bündnis C比' },
+            'BP': { 'sm': 'GIS2025独_BP小', 'lg': 'GIS2025独_BP比' },
+            'MLPD': { 'sm': 'GIS2025独_MLPD小', 'lg': 'GIS2025独_MLPD比' },
+            'MW': { 'sm': 'GIS2025独_MW小', 'lg': 'GIS2025独_MW比' },
+            'PdF': { 'sm': 'GIS2025独_PdF小', 'lg': 'GIS2025独_PdF比' },
+            'SGP': { 'sm': 'GIS2025独_SGP小', 'lg': 'GIS2025独_SGP比' },
+            'BüSo': { 'sm': 'GIS2025独_BüSo小', 'lg': 'GIS2025独_BüSo比' },
+            'BD': { 'sm': 'GIS2025独_BD小', 'lg': 'GIS2025独_BD比' },
+            'BSW': { 'sm': 'GIS2025独_BSW小', 'lg': 'GIS2025独_BSW比' },
+            'MERA25': { 'sm': 'GIS2025独_MERA25小', 'lg': 'GIS2025独_MERA25比' },
+            'WerteUnion': { 'sm': 'GIS2025独_WerteUnion小', 'lg': 'GIS2025独_WerteUnion比' },
+            'その他': { 'sm': 'GIS2025独_その他小', 'lg': 'GIS2025独_その他比' }
+        };
+        // 各政党の最高得票率を格納する変数
+        let maxPercentages = {};
+        let currentViewMode = 'sm-winner'; // デフォルトは小選挙区当選政党
+        let currentSelectedLayer = null;
+        let isGeoJSONLoaded = false;
 
-// 修正: ポップアップの内容を生成する関数
-function getPopupContent(props) {
-    const infoPanel = document.createElement('div');
-    infoPanel.className = 'info-panel';
-    const modeParts = currentViewMode.split('-');
-    const subMode = modeParts[1];
-    
-    const h2 = document.createElement('h2');
-    h2.textContent = props['GIS2025独_Gebiet'] || '選挙区名なし';
-    infoPanel.appendChild(h2);
-    
-    // 小選挙区の表示ロジック
-    if (subMode === 'sm' || currentViewMode === 'sm-winner') {
-        const winnerParty = props['GIS2025独_当選政党'] || '不明';
-        const winnerPercentage = (props['GIS2025独_当選得票率'] || 0).toFixed(2);
-        const winnerVotes = (props['GIS2025独_当選票数'] || 0).toLocaleString();
-        const sortedParties = getSortedPartyData(props, 'sm');
-        
-        const h3 = document.createElement('h3');
-        h3.textContent = '小選挙区得票率';
-        infoPanel.appendChild(h3);
-        
-        const winnerP = document.createElement('p');
-        winnerP.innerHTML = `<strong>当選政党:</strong> ${winnerParty}`;
-        if (currentViewMode === 'sm-winner') {
-            winnerP.classList.add('highlighted-info-text');
-        }
-        infoPanel.appendChild(winnerP);
-        
-        if (winnerParty !== '当選者なし') {
-            const winnerDetailsP = document.createElement('p');
-            winnerDetailsP.innerHTML = `${winnerPercentage}% (${winnerVotes}票)`;
-            if (currentViewMode === 'sm-winner') {
-                winnerDetailsP.classList.add('highlighted-info-text');
-            }
-            infoPanel.appendChild(winnerDetailsP);
-        }
-        
-        const hr = document.createElement('hr');
-        infoPanel.appendChild(hr);
-
-        sortedParties.forEach(party => {
-            const percentage = party.percentage.toFixed(2);
-            const votes = party.voteCount.toLocaleString();
-            const p = document.createElement('p');
-            p.innerHTML = `<strong>${party.partyName}:</strong> ${percentage}% (${votes}票)`;
-            if (currentViewMode === `${party.partyName}-sm`) {
-                p.classList.add('highlighted-info-text');
-            }
-            infoPanel.appendChild(p);
-        });
-    }
-    
-    // 比例代表の表示ロジック
-    else if (subMode === 'lg' || currentViewMode === 'lg-winner') {
-        const sortedParties = getSortedPartyData(props, 'lg');
-        const winner = getWinnerParty(props, 'lg');
-        
-        const h3 = document.createElement('h3');
-        h3.textContent = '比例代表得票率';
-        infoPanel.appendChild(h3);
-
-        sortedParties.forEach(party => {
-            const percentage = party.percentage.toFixed(2);
-            const votes = party.voteCount.toLocaleString();
-            const p = document.createElement('p');
-            p.innerHTML = `<strong>${party.partyName}:</strong> ${percentage}% (${votes}票)`;
-            if (currentViewMode === `${party.partyName}-lg` || (currentViewMode === 'lg-winner' && party.partyName === winner)) {
-                p.classList.add('highlighted-info-text');
-            }
-            infoPanel.appendChild(p);
-        });
-    }
-
-    return infoPanel;
-}
-
-
-// 詳細情報パネルを更新する関数（修正版）
-function updateInfoPanel(props) {
-    const infoPanel = document.getElementById('info-panel');
-    const modeParts = currentViewMode.split('-');
-    const mainMode = modeParts[0];
-    const subMode = modeParts[1];
-    let content = `<h2>${props['GIS2025独_Gebiet'] || '選挙区名なし'}</h2>`;
-
-
-// 小選挙区の表示ロジック
-    if (subMode === 'sm' || currentViewMode === 'sm-winner') {
-        const winnerParty = props['GIS2025独_当選政党'] || '不明';
-        const winnerPercentage = (props['GIS2025独_当選得票率'] || 0).toFixed(2);
-        const winnerVotes = (props['GIS2025独_当選票数'] || 0).toLocaleString();
-        const sortedParties = getSortedPartyData(props, 'sm');
-        
-        content += `<h3>小選挙区得票率</h3>`;
-        content += `<p class="${currentViewMode === 'sm-winner' ? 'highlighted-info-text' : ''}"><strong>当選政党:</strong> ${winnerParty}</p>`;
-        if (winnerParty !== '当選者なし') {
-            content += `<p class="${currentViewMode === 'sm-winner' ? 'highlighted-info-text' : ''}">${winnerPercentage}% (${winnerVotes}票)</p>`;
-        }
-        
-        // ここを修正：<hr>タグを挿入
-        content += `<hr>`;
-
-        sortedParties.forEach(party => {
-            const percentage = party.percentage.toFixed(2);
-            const votes = party.voteCount.toLocaleString();
-            const highlightClass = (currentViewMode === `${party.partyName}-sm`) ? 'highlighted-info-text' : '';
-            content += `<p class="${highlightClass}"><strong>${party.partyName}:</strong> ${percentage}% (${votes}票)</p>`;
-        });
-    }
-
-
-    
-    // 比例代表の表示ロジック
-    else if (subMode === 'lg' || currentViewMode === 'lg-winner') {
-        const sortedParties = getSortedPartyData(props, 'lg');
-        const winner = getWinnerParty(props, 'lg');
-        
-        // 「最多得票政党」セクションを削除し、「比例代表得票率」見出しのみ表示
-        content += `<h3>比例代表得票率</h3>`;
-
-        sortedParties.forEach(party => {
-            const percentage = party.percentage.toFixed(2);
-            const votes = party.voteCount.toLocaleString();
-            const highlightClass = (currentViewMode === `${party.partyName}-lg`) || (currentViewMode === 'lg-winner' && party.partyName === winner) ? 'highlighted-info-text' : '';
-            content += `<p class="${highlightClass}"><strong>${party.partyName}:</strong> ${percentage}% (${votes}票)</p>`;
-        });
-    }
-
-    infoPanel.innerHTML = content;
-}
-
-
-
-
-
-
-
-
-
-    
-    function updateMapStyle() {
-        if (geojsonLayer) {
-            geojsonLayer.eachLayer(layer => {
-                layer.setStyle(style(layer.feature));
-            });
-        }
-        // 地図の表示モードが変更されたら、選択中の地物があれば詳細情報を更新
-        if (currentSelectedLayer) {
-            if (window.innerWidth > 768) {
-                updateInfoPanel(currentSelectedLayer.feature.properties);
-            }
-        }
-    }
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        // GeoJSONデータを読み込む
-        fetch(geojsonDataPath)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+        // 比例代表の最多得票政党を決定するヘルパー関数
+        function getWinnerParty(properties, type) {
+            if (type === 'sm') {
+                const winningParty = properties['GIS2025独_当選政党'];
+                if (winningParty && winningParty !== '当選者なし') {
+                    return winningParty;
                 }
-                return response.json();
-            })
-            .then(data => {
-                isGeoJSONLoaded = true;
-                // 各政党の最高得票率を計算
+            } else if (type === 'lg') {
+                let maxPercentage = -1;
+                let winner = 'その他';
+                // 全政党の比例代表得票率を比較して最多得票政党を見つける
                 for (const party in voteFields) {
-                    maxPercentages[party] = { 'sm': 0, 'lg': 0 };
-                }
-                data.features.forEach(feature => {
-                    for (const party in voteFields) {
-                        const smPercentage = feature.properties[voteFields[party]['sm']] || 0;
-                        const lgPercentage = feature.properties[voteFields[party]['lg']] || 0;
-                        if (smPercentage > maxPercentages[party]['sm']) {
-                            maxPercentages[party]['sm'] = smPercentage;
-                        }
-                        if (lgPercentage > maxPercentages[party]['lg']) {
-                            maxPercentages[party]['lg'] = lgPercentage;
-                        }
+                    const percentage = properties[voteFields[party]['lg']] || 0;
+                    if (percentage > maxPercentage) {
+                        maxPercentage = percentage;
+                        winner = party;
                     }
-                });
-                geojsonLayer = L.geoJSON(data, {
-                    style: style,
-                    onEachFeature: onEachFeature
-                }).addTo(map);
-                // マップをGeoJSONの範囲に自動調整
-                map.fitBounds(geojsonLayer.getBounds());
-            })
-            .catch(error => {
-                console.error('Error loading the GeoJSON data:', error);
-                
-                // GeoJSON読み込み失敗時でも地図を表示し、ユーザーにメッセージを提示
-                geojsonLayer = L.geoJSON([], { // 空のGeoJSONレイヤーを作成
-                    style: style,
-                }).addTo(map);
-                
-                document.getElementById('info-panel').innerHTML = '地図データの読み込みに失敗しました。ファイルが正しい場所にあるか確認してください。';
+                }
+                return winner;
+            }
+            return null;
+        }
+
+
+
+        // 地物のスタイルを決定する関数
+        function style(feature) {
+            const props = feature.properties;
+            let fillColor = '#ffffff';
+            let fillOpacity = 0;
+            if (isGeoJSONLoaded) {
+                if (currentViewMode === 'sm-winner') {
+                    const winner = props['GIS2025独_当選政党'] || '当選者なし';
+                    const winnerPercentage = props['GIS2025独_当選得票率'] || 0;
+                    if (winner && winner !== '当選者なし') {
+                        fillColor = partyColors[winner] || '#ffffff';
+                        // 修正箇所: 50%を基準に不透明度を計算
+                        fillOpacity = Math.min(1.0, (winnerPercentage || 0) / 50);
+                    } else {
+                        fillColor = '#ffffff';
+                        fillOpacity = 0;
+                    }
+                } else if (currentViewMode === 'lg-winner') {
+                    const winner = getWinnerParty(props, 'lg');
+                    const winnerPercentage = props[voteFields[winner]['lg']] || 0;
+                    fillColor = partyColors[winner] || '#ffffff';
+                    fillOpacity = Math.min(1.0, (winnerPercentage || 0) / 50);
+                } else { // 個別政党の得票率表示
+                    const modeParts = currentViewMode.split('-');
+                    const party = modeParts[0];
+                    const voteType = modeParts[1] === 'sm' ? 'sm' : 'lg';
+                    const percentage = props[voteFields[party][voteType]] || 0;
+                    const maxPercentage = (maxPercentages[party] && maxPercentages[party][voteType]) ? maxPercentages[party][voteType] : 1;
+
+                    fillColor = partyColors[party] || '#ffffff';
+                    fillOpacity = (percentage || 0) / maxPercentage;
+                }
+            } else {
+                // GeoJSONがロードされていない場合は、すべての地物を半透明のグレーで表示
+                fillColor = '#cccccc';
+                fillOpacity = 0.5;
+            }
+            return {
+                fillColor: fillColor,
+                weight: 1,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: fillOpacity
+            };
+        }
+
+
+
+
+
+
+        // 地物選択時のスタイル（境界線のみをハイライト）
+        function highlightFeature(layer) {
+            const originalStyle = style(layer.feature);
+            layer.setStyle({
+                ...originalStyle,
+                weight: 3,
+                color: '#990000', // ここを#990000に変更
+                dashArray: ''
             });
+            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                layer.bringToFront();
+            }
+        }
 
-// 凡例クリックイベントリスナー
-        const legendItems = document.querySelectorAll('.legend-in-explanation .legend-item');
-        legendItems.forEach(item => {
-            item.addEventListener('click', () => {
-                // すべての項目から 'selected' クラスを削除
-                legendItems.forEach(li => li.classList.remove('selected'));
-                // クリックされた項目に 'selected' クラスを追加
-                item.classList.add('selected');
 
-                currentViewMode = item.dataset.partyName;
-                updateMapStyle(); // 地図のスタイルを更新
-                
-                // 以前にクリックされたレイヤーがあれば、詳細情報パネルを更新
-                if (currentSelectedLayer) {
+
+
+        // 新規追加: 詳細情報パネルをクリアする関数
+        function clearInfoPanel() {
+            document.getElementById('info-panel').innerHTML = '地図をクリックするとここに情報が表示されます。';
+        }
+
+        // 選択をリセットする関数
+        function resetHighlight() {
+            if (geojsonLayer && currentSelectedLayer) {
+                geojsonLayer.resetStyle(currentSelectedLayer);
+                currentSelectedLayer = null;
+            }
+            clearInfoPanel();
+        }
+
+        function onEachFeature(feature, layer) {
+            layer.on({
+                click: function (e) {
+                    // GeoJSONがロードされていなければ何もしない
+                    if (!isGeoJSONLoaded) {
+                        return;
+                    }
+
+                    // 常に以前の選択状態をリセットする
+                    resetHighlight();
+                    // 新しいレイヤーを選択状態に設定
+                    currentSelectedLayer = e.target;
+
+                    // 新しいレイヤーをハイライト
+                    highlightFeature(e.target);
+                    // PCではサイドバー、モバイルではポップアップを更新
+                    if (window.innerWidth > 768) {
+                        updateInfoPanel(e.target.feature.properties);
+                    } else {
+                        L.popup()
+                            .setLatLng(e.latlng)
+                            .setContent(getPopupContent(e.target.feature.properties))
+                            .openOn(map);
+                    }
+                }
+            });
+        }
+
+        // 地物以外の領域がクリックされたときに選択を解除する
+        map.on('click', function (e) {
+            const clickedOnFeature = e.originalEvent && e.originalEvent.target && e.originalEvent.target.classList.contains('leaflet-interactive');
+            if (!clickedOnFeature) {
+                resetHighlight();
+            }
+        });
+
+        // 政党データを取得し、得票数でソートするヘルパー関数
+        function getSortedPartyData(props, voteType) {
+            const parties = Object.keys(voteFields).filter(p => p !== 'その他').map(party => {
+                return {
+                    partyName: party,
+                    percentage: props[voteFields[party][voteType]] || 0,
+                    voteCount: props[voteCountFields[party][voteType]] || 0
+                };
+            }).filter(p => p.voteCount > 0);
+
+            // 得票数でソート
+            parties.sort((a, b) => b.voteCount - a.voteCount);
+
+            // 「その他」の情報を取得し、最後に加える
+            const otherParty = {
+                partyName: 'その他',
+                percentage: props[voteFields['その他'][voteType]] || 0,
+                voteCount: props[voteCountFields['その他'][voteType]] || 0
+            };
+            if (otherParty.voteCount > 0) {
+                parties.push(otherParty);
+            }
+            return parties;
+        }
+
+        // 修正: ポップアップの内容を生成する関数
+        function getPopupContent(props) {
+            const infoPanel = document.createElement('div');
+            infoPanel.className = 'info-panel';
+            const modeParts = currentViewMode.split('-');
+            const subMode = modeParts[1];
+
+            const h2 = document.createElement('h2');
+            h2.textContent = props['GIS2025独_Gebiet'] || '選挙区名なし';
+            infoPanel.appendChild(h2);
+
+            // 小選挙区の表示ロジック
+            if (subMode === 'sm' || currentViewMode === 'sm-winner') {
+                const winnerParty = props['GIS2025独_当選政党'] || '不明';
+                const winnerPercentage = (props['GIS2025独_当選得票率'] || 0).toFixed(2);
+                const winnerVotes = (props['GIS2025独_当選票数'] || 0).toLocaleString();
+                const sortedParties = getSortedPartyData(props, 'sm');
+
+                const h3 = document.createElement('h3');
+                h3.textContent = '小選挙区得票率';
+                infoPanel.appendChild(h3);
+
+                const winnerP = document.createElement('p');
+                winnerP.innerHTML = `<strong>当選政党</strong>: ${winnerParty}`;
+                if (currentViewMode === 'sm-winner') {
+                    winnerP.classList.add('highlighted-info-text');
+                }
+                infoPanel.appendChild(winnerP);
+
+                if (winnerParty !== '当選者なし') {
+                    const winnerDetailsP = document.createElement('p');
+                    winnerDetailsP.innerHTML = `${winnerPercentage}% (${winnerVotes}票)`;
+                    if (currentViewMode === 'sm-winner') {
+                        winnerDetailsP.classList.add('highlighted-info-text');
+                    }
+                    infoPanel.appendChild(winnerDetailsP);
+                }
+
+                const hr = document.createElement('hr');
+                infoPanel.appendChild(hr);
+
+                sortedParties.forEach(party => {
+                    const percentage = party.percentage.toFixed(2);
+                    const votes = party.voteCount.toLocaleString();
+                    const p = document.createElement('p');
+                    p.innerHTML = `<strong>${party.partyName}</strong>: ${percentage}% (${votes}票)`;
+                    if (currentViewMode === `${party.partyName}-sm`) {
+                        p.classList.add('highlighted-info-text');
+                    }
+                    infoPanel.appendChild(p);
+                });
+            }
+
+            // 比例代表の表示ロジック
+            else if (subMode === 'lg' || currentViewMode === 'lg-winner') {
+                const sortedParties = getSortedPartyData(props, 'lg');
+                const winner = getWinnerParty(props, 'lg');
+
+                const h3 = document.createElement('h3');
+                h3.textContent = '比例代表得票率';
+                infoPanel.appendChild(h3);
+
+                sortedParties.forEach(party => {
+                    const percentage = party.percentage.toFixed(2);
+                    const votes = party.voteCount.toLocaleString();
+                    const p = document.createElement('p');
+                    p.innerHTML = `<strong>${party.partyName}</strong>: ${percentage}% (${votes}票)`;
+                    if (currentViewMode === `${party.partyName}-lg` || (currentViewMode === 'lg-winner' && party.partyName === winner)) {
+                        p.classList.add('highlighted-info-text');
+                    }
+                    infoPanel.appendChild(p);
+                });
+            }
+
+            return infoPanel;
+        }
+
+
+        // 詳細情報パネルを更新する関数（修正版）
+        function updateInfoPanel(props) {
+            const infoPanel = document.getElementById('info-panel');
+            const modeParts = currentViewMode.split('-');
+            const mainMode = modeParts[0];
+            const subMode = modeParts[1];
+            let content = `<h2>${props['GIS2025独_Gebiet'] || '選挙区名なし'}</h2>`;
+
+
+            // 小選挙区の表示ロジック
+            if (subMode === 'sm' || currentViewMode === 'sm-winner') {
+                const winnerParty = props['GIS2025独_当選政党'] || '不明';
+                const winnerPercentage = (props['GIS2025独_当選得票率'] || 0).toFixed(2);
+                const winnerVotes = (props['GIS2025独_当選票数'] || 0).toLocaleString();
+                const sortedParties = getSortedPartyData(props, 'sm');
+
+                content += `<h3>小選挙区得票率</h3>`;
+                content += `<p class="${currentViewMode === 'sm-winner' ? 'highlighted-info-text' : ''}"><strong>当選政党</strong>: ${winnerParty}</p>`;
+                if (winnerParty !== '当選者なし') {
+                    content += `<p class="${currentViewMode === 'sm-winner' ? 'highlighted-info-text' : ''}">${winnerPercentage}% (${winnerVotes}票)</p>`;
+                }
+
+                // ここを修正：<hr>タグを挿入
+                content += `<hr>`;
+
+                sortedParties.forEach(party => {
+                    const percentage = party.percentage.toFixed(2);
+                    const votes = party.voteCount.toLocaleString();
+                    const highlightClass = (currentViewMode === `${party.partyName}-sm`) ? 'highlighted-info-text' : '';
+                    content += `<p class="${highlightClass}"><strong>${party.partyName}</strong>: ${percentage}% (${votes}票)</p>`;
+                });
+            }
+
+
+
+            // 比例代表の表示ロジック
+            else if (subMode === 'lg' || currentViewMode === 'lg-winner') {
+                const sortedParties = getSortedPartyData(props, 'lg');
+                const winner = getWinnerParty(props, 'lg');
+
+                // 「最多得票政党」セクションを削除し、「比例代表得票率」見出しのみ表示
+                content += `<h3>比例代表得票率</h3>`;
+
+                sortedParties.forEach(party => {
+                    const percentage = party.percentage.toFixed(2);
+                    const votes = party.voteCount.toLocaleString();
+                    const highlightClass = (currentViewMode === `${party.partyName}-lg`) || (currentViewMode === 'lg-winner' && party.partyName === winner) ? 'highlighted-info-text' : '';
+                    content += `<p class="${highlightClass}"><strong>${party.partyName}</strong>: ${percentage}% (${votes}票)</p>`;
+                });
+            }
+
+            infoPanel.innerHTML = content;
+        }
+
+
+
+
+
+
+
+
+
+
+        function updateMapStyle() {
+            if (geojsonLayer) {
+                geojsonLayer.eachLayer(layer => {
+                    layer.setStyle(style(layer.feature));
+                });
+            }
+            // 地図の表示モードが変更されたら、選択中の地物があれば詳細情報を更新
+            if (currentSelectedLayer) {
+                if (window.innerWidth > 768) {
                     updateInfoPanel(currentSelectedLayer.feature.properties);
                 }
-                
-                // 凡例クリック時に開いているポップアップを閉じる
-                map.closePopup();
-            });
-        });
-
-
-
-        // 情報ボタンとモーダル
-        const explanationOverlay = document.getElementById('explanationOverlay');
-        const infoButton = document.getElementById('infoButton');
-        const closeExplanationButton = document.getElementById('closeExplanationButton');
-
-
-
-
-
-// 凡例トグルボタンのイベントリスナー
-        const smLegendToggle = document.getElementById('sm-legend-toggle');
-        const lgLegendToggle = document.getElementById('lg-legend-toggle');
-        const smLegendList = document.getElementById('sm-legend-list');
-        const lgLegendList = document.getElementById('lg-legend-list');
-        // 凡例リストの開閉を制御する関数
-        function toggleLegend(list, button, shouldCloseOthers = true) {
-            const isHidden = list.classList.contains('hidden');
-            
-            if (shouldCloseOthers && isHidden) {
-                // 小選挙区のボタンが押された場合、比例代表を閉じる
-                if (list === smLegendList && !lgLegendList.classList.contains('hidden')) {
-                    lgLegendList.classList.add('hidden');
-                    lgLegendToggle.classList.remove('collapsed');
-                }
-                // 比例代表のボタンが押された場合、小選挙区を閉じる
-                else if (list === lgLegendList && !smLegendList.classList.contains('hidden')) {
-                    smLegendList.classList.add('hidden');
-                    smLegendToggle.classList.remove('collapsed');
-                }
             }
-            
-            list.classList.toggle('hidden');
-            button.classList.toggle('collapsed');
         }
 
+        document.addEventListener('DOMContentLoaded', () => {
+            // GeoJSONデータを読み込む
+            fetch(geojsonDataPath)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    isGeoJSONLoaded = true;
+                    // 各政党の最高得票率を計算
+                    for (const party in voteFields) {
+                        maxPercentages[party] = { 'sm': 0, 'lg': 0 };
+                    }
+                    data.features.forEach(feature => {
+                        for (const party in voteFields) {
+                            const smPercentage = feature.properties[voteFields[party]['sm']] || 0;
+                            const lgPercentage = feature.properties[voteFields[party]['lg']] || 0;
+                            if (smPercentage > maxPercentages[party]['sm']) {
+                                maxPercentages[party]['sm'] = smPercentage;
+                            }
+                            if (lgPercentage > maxPercentages[party]['lg']) {
+                                maxPercentages[party]['lg'] = lgPercentage;
+                            }
+                        }
+                    });
+                    geojsonLayer = L.geoJSON(data, {
+                        style: style,
+                        onEachFeature: onEachFeature
+                    }).addTo(map);
+                    // マップをGeoJSONの範囲に自動調整
+                    map.fitBounds(geojsonLayer.getBounds());
+                })
+                .catch(error => {
+                    console.error('Error loading the GeoJSON data:', error);
 
-        // 小選挙区のボタンのクリックイベント
-        smLegendToggle.addEventListener('click', () => {
-            // すべてのハイライトを解除するコードを削除
-            // legendItems.forEach(li => li.classList.remove('selected'));
-            toggleLegend(smLegendList, smLegendToggle);
-        });
+                    // GeoJSON読み込み失敗時でも地図を表示し、ユーザーにメッセージを提示
+                    geojsonLayer = L.geoJSON([], { // 空のGeoJSONレイヤーを作成
+                        style: style,
+                    }).addTo(map);
 
-        // 比例代表のボタンのクリックイベント
-        lgLegendToggle.addEventListener('click', () => {
-            // すべてのハイライトを解除するコードを削除
-            // legendItems.forEach(li => li.classList.remove('selected'));
-            toggleLegend(lgLegendList, lgLegendToggle);
-        });
+                    document.getElementById('info-panel').innerHTML = '地図データの読み込みに失敗しました。ファイルが正しい場所にあるか確認してください。';
+                });
+
+            // 凡例クリックイベントリスナー
+            const legendItems = document.querySelectorAll('.legend-in-explanation .legend-item');
+            legendItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // すべての項目から 'selected' クラスを削除
+                    legendItems.forEach(li => li.classList.remove('selected'));
+                    // クリックされた項目に 'selected' クラスを追加
+                    item.classList.add('selected');
+
+                    currentViewMode = item.dataset.partyName;
+                    updateMapStyle(); // 地図のスタイルを更新
+
+                    // 以前にクリックされたレイヤーがあれば、詳細情報パネルを更新
+                    if (currentSelectedLayer) {
+                        updateInfoPanel(currentSelectedLayer.feature.properties);
+                    }
+
+                    // 凡例クリック時に開いているポップアップを閉じる
+                    map.closePopup();
+                });
+            });
 
 
-        infoButton.addEventListener('click', () => {
+
+            // 情報ボタンとモーダル
+            const explanationOverlay = document.getElementById('explanationOverlay');
+            const infoButton = document.getElementById('infoButton');
+            const closeExplanationButton = document.getElementById('closeExplanationButton');
+
+
+
+
+
+            // 凡例トグルボタンのイベントリスナー
+            const smLegendToggle = document.getElementById('sm-legend-toggle');
+            const lgLegendToggle = document.getElementById('lg-legend-toggle');
+            const smLegendList = document.getElementById('sm-legend-list');
+            const lgLegendList = document.getElementById('lg-legend-list');
+            // 凡例リストの開閉を制御する関数
+            function toggleLegend(list, button, shouldCloseOthers = true) {
+                const isHidden = list.classList.contains('hidden');
+
+                if (shouldCloseOthers && isHidden) {
+                    // 小選挙区のボタンが押された場合、比例代表を閉じる
+                    if (list === smLegendList && !lgLegendList.classList.contains('hidden')) {
+                        lgLegendList.classList.add('hidden');
+                        lgLegendToggle.classList.remove('collapsed');
+                    }
+                    // 比例代表のボタンが押された場合、小選挙区を閉じる
+                    else if (list === lgLegendList && !smLegendList.classList.contains('hidden')) {
+                        smLegendList.classList.add('hidden');
+                        smLegendToggle.classList.remove('collapsed');
+                    }
+                }
+
+                list.classList.toggle('hidden');
+                button.classList.toggle('collapsed');
+            }
+
+
+            // 小選挙区のボタンのクリックイベント
+            smLegendToggle.addEventListener('click', () => {
+                // すべてのハイライトを解除するコードを削除
+                // legendItems.forEach(li => li.classList.remove('selected'));
+                toggleLegend(smLegendList, smLegendToggle);
+            });
+
+            // 比例代表のボタンのクリックイベント
+            lgLegendToggle.addEventListener('click', () => {
+                // すべてのハイライトを解除するコードを削除
+                // legendItems.forEach(li => li.classList.remove('selected'));
+                toggleLegend(lgLegendList, lgLegendToggle);
+            });
+
+
+            infoButton.addEventListener('click', () => {
+                explanationOverlay.classList.add('active');
+            });
+            closeExplanationButton.addEventListener('click', () => {
+                explanationOverlay.classList.remove('active');
+            });
+            // オーバーレイの背景をクリックで閉じる
+            explanationOverlay.addEventListener('click', (e) => {
+                if (e.target === explanationOverlay) {
+                    explanationOverlay.classList.remove('active');
+                }
+            });
+            // ESCキーで閉じる
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && explanationOverlay.classList.contains('active')) {
+                    explanationOverlay.classList.remove('active');
+                }
+            });
+            // 最初に小選挙区の当選政党をアクティブにする
+            document.querySelector('[data-party-name="sm-winner"]').classList.add('selected');
+            // ページ読み込み時に説明パネルを自動的に表示
             explanationOverlay.classList.add('active');
         });
-        closeExplanationButton.addEventListener('click', () => {
-            explanationOverlay.classList.remove('active');
-        });
-        // オーバーレイの背景をクリックで閉じる
-        explanationOverlay.addEventListener('click', (e) => {
-            if (e.target === explanationOverlay) {
-                explanationOverlay.classList.remove('active');
-            }
-        });
-        // ESCキーで閉じる
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && explanationOverlay.classList.contains('active')) {
-                explanationOverlay.classList.remove('active');
-            }
-        });
-        // 最初に小選挙区の当選政党をアクティブにする
-        document.querySelector('[data-party-name="sm-winner"]').classList.add('selected');
-        // ページ読み込み時に説明パネルを自動的に表示
-        explanationOverlay.classList.add('active');
-    });
 
 
 
-</script>
+    </script>
 </body>
+
 </html>
