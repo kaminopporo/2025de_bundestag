@@ -218,7 +218,7 @@
             font-size: 1.05em;
             margin-bottom: 0;
             /* 各行間のマージンを詰める */
-            line-height: 1.2;
+            line-height: 1;
             /* 行間を少し広げて読みやすくする */
             color: #000000;
             /* テキストの色をより濃く */
@@ -252,21 +252,21 @@
         #info-panel h2 {
             font-size: 1.3em;
             margin-top: 0;
-            margin-bottom: 0;
+            margin-bottom: 10px;
             color: #000000;
             border-bottom: none;
             /* 区切り線を削除 */
         }
 
         #info-panel p {
-            font-size: 0.9em;
+            font-size: 1.0em;
             /* フォントサイズも少し小さくして行数を稼ぐ */
-            margin-bottom: 0;
-            /* 各行間のマージンを詰める */
+            margin-top: 0;
+            margin-bottom: 10px;
+            /* 各行間のマージンをさらに詰める */
             line-height: 1;
-            /* 行間を詰める */
+            /* 行間をさらに詰める */
             color: #000000;
-            /* テキストの色をより濃く */
         }
 
         /* ハイライト用スタイル */
@@ -893,7 +893,6 @@
             </div>
             <div class="section-divider"></div>
             <p><strong>データソース</strong>: ドイツ政府が公表するデータに基づいています。</p>
-            <p><strong>クリックで詳細</strong>: 地図上の選挙区をクリックすると、サイドバー（PC）またはポップアップ（スマートフォン）にその選挙区の各政党の得票率詳細が表示されます。</p>
         </div>
     </div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
